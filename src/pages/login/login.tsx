@@ -34,7 +34,7 @@ const LoginPage = () => {
                   }
                 ]
               }>
-                <Input prefix={<UserOutlined/>} placeholder='Usernamea'/>
+                <Input prefix={<UserOutlined/>} placeholder='Username'/>
               </Form.Item>
               <Form.Item name="password" rules={
                 [
