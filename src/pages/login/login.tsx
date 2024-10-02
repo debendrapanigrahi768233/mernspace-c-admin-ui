@@ -3,9 +3,9 @@ import {LockFilled, UserOutlined, LockOutlined} from '@ant-design/icons'
 import {Logo} from '../../components/icons/logo'
 
 import React from 'react'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { Credentials } from '../../types'
-import { login } from '../../http/api'
+import { login, self } from '../../http/api'
 
 const loginUser=async (credentials: Credentials)=>{
   //server call logic
@@ -13,11 +13,28 @@ const loginUser=async (credentials: Credentials)=>{
   return data
 }
 
+const getSelf=async()=>{
+  //server call logic
+  const {data}=await self()
+  return data
+}
+
 const LoginPage = () => {
+
+  const {data:selfData, refetch}=useQuery({
+    queryKey: ['self'],
+    queryFn: getSelf,
+    enabled: false             //This is bydefault not run the query when the component render
+  })
+
   const {mutate, isPending, isError, error}= useMutation({
     mutationKey: ['login'],
     mutationFn: loginUser,
     onSuccess: async ()=>{
+      //get self
+      await refetch();
+      console.log("Userdata----->", selfData); 
+      //store in state
       console.log("Login Successfully")
     }
   })
