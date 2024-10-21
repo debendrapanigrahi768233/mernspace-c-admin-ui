@@ -31,6 +31,15 @@ const LoginPage = () => {
     enabled: false             //This is bydefault not run the query when the component render
   })
 
+  const {mutate: logoutMutate}= useMutation({
+    mutationKey: ['logout'],
+    mutationFn: logout,
+    onSuccess: ()=>{
+      logoutFromStore()
+      return;
+    }
+  })
+
   const {mutate, isPending, isError, error}= useMutation({
     mutationKey: ['login'],
     mutationFn: loginUser,
@@ -42,8 +51,7 @@ const LoginPage = () => {
       //logout or redirect to client ui if user not admin    for redirect ---> window.location.href="http://client-Ui-URL"
       //selfDataPromise.data.role = ['customer','admin']
       if(!isAllowed(selfDataPromise.data)){
-        await logout()
-        logoutFromStore()
+        logoutMutate()
         return;
       }
       setUser(selfDataPromise.data);
