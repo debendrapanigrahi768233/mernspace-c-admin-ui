@@ -16,10 +16,11 @@ interface AuthState {
 }
 
 //Authstate here is the return type of userAuthStore
-export const userAuthStore = create<AuthState>(
+// Zustand store
+export const userAuthStore = create<AuthState>()(
   devtools((set) => ({
     user: null,
-    setUser: (user: User) => set({ user: user }),
+    setUser: (user: User) => set({ user }),
     logout: () => set({ user: null }),
   }))
 );
