@@ -2,10 +2,11 @@ import { Card, Layout, Space, Form, Input, Checkbox, Button, Flex, Alert } from 
 import {LockFilled, UserOutlined, LockOutlined} from '@ant-design/icons'
 import {Logo} from '../../components/icons/logo'
 
-import React from 'react'
+// import React from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Credentials } from '../../types'
 import { login, self } from '../../http/api'
+import { userAuthStore } from '../../store'
 
 const loginUser=async (credentials: Credentials)=>{
   //server call logic
@@ -20,8 +21,10 @@ const getSelf=async()=>{
 }
 
 const LoginPage = () => {
-
-  const {data:selfData, refetch}=useQuery({
+  //ctrl + space inside the object to see what all available
+  const {setUser}= userAuthStore()
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const {data, refetch}=useQuery({
     queryKey: ['self'],
     queryFn: getSelf,
     enabled: false             //This is bydefault not run the query when the component render
@@ -32,10 +35,13 @@ const LoginPage = () => {
     mutationFn: loginUser,
     onSuccess: async ()=>{
       //get self
-      await refetch();
-      console.log("Userdata----->", selfData); 
+      const selfDataPromise= await refetch();
       //store in state
-      console.log("Login Successfully")
+      if (selfDataPromise.data) {
+        setUser(selfDataPromise.data);
+      } else {
+        console.error("Error: No data returned from 'refetch'");
+      }
     }
   })
   return (
