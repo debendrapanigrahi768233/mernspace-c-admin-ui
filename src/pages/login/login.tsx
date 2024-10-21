@@ -5,8 +5,9 @@ import {Logo} from '../../components/icons/logo'
 // import React from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Credentials } from '../../types'
-import { login, self } from '../../http/api'
+import { login, self, logout } from '../../http/api'
 import { userAuthStore } from '../../store'
+import { usePermission } from '../../hooks/usePermission';
 
 const loginUser=async (credentials: Credentials)=>{
   //server call logic
@@ -21,10 +22,10 @@ const getSelf=async()=>{
 }
 
 const LoginPage = () => {
+  const {isAllowed} = usePermission()
   //ctrl + space inside the object to see what all available
-  const {setUser}= userAuthStore()
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {data, refetch}=useQuery({
+  const {setUser, logout: logoutFromStore}= userAuthStore()
+  const {refetch}=useQuery({
     queryKey: ['self'],
     queryFn: getSelf,
     enabled: false             //This is bydefault not run the query when the component render
@@ -36,12 +37,16 @@ const LoginPage = () => {
     onSuccess: async ()=>{
       //get self
       const selfDataPromise= await refetch();
-      //store in state
-      if (selfDataPromise.data) {
-        setUser(selfDataPromise.data);
-      } else {
-        console.error("Error: No data returned from 'refetch'");
+      console.log(selfDataPromise)
+
+      //logout or redirect to client ui if user not admin    for redirect ---> window.location.href="http://client-Ui-URL"
+      //selfDataPromise.data.role = ['customer','admin']
+      if(!isAllowed(selfDataPromise.data)){
+        await logout()
+        logoutFromStore()
+        return;
       }
+      setUser(selfDataPromise.data);
     }
   })
   return (

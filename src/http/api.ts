@@ -1,9 +1,12 @@
 import { Credentials } from "../types";
 import { api } from "./client";
 
-//Auth service
+//Auth service----------------------------->
 export const login = (credentials: Credentials) =>
   api.post("/auth/login", credentials);
 
-//getself service
+//getself endpoint
 export const self = () => api.get("/auth/self");
+
+//logout endpoint
+export const logout = () => api.post("/auth/logout");
