@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom'
 import { self } from '../http/api'
 import { userAuthStore } from '../store'
 import { useEffect } from 'react'
+import { AxiosError } from 'axios'
 
 
 const getSelf=async()=>{
@@ -16,6 +17,12 @@ const Root = () => {
     const {data: selfData, isLoading}=useQuery({
         queryKey: ['self'],
         queryFn: getSelf,
+        retry: (failureCounts:number, error)=>{
+            if(error instanceof AxiosError && error.response?.status === 401){
+                return false
+            }
+            return failureCounts<3              //if 401 then dont retry else retry 3 times
+        }
     })
 
     
