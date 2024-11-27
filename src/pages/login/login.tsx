@@ -1,6 +1,5 @@
 import { Card, Layout, Space, Form, Input, Checkbox, Button, Flex, Alert } from 'antd'
 import {LockFilled, UserOutlined, LockOutlined} from '@ant-design/icons'
-import {Logo} from '../../components/icons/logo'
 
 // import React from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -8,6 +7,7 @@ import { Credentials } from '../../types'
 import { login, self, logout } from '../../http/api'
 import { userAuthStore } from '../../store'
 import { usePermission } from '../../hooks/usePermission';
+import Logo from '../../components/icons/Logo'
 
 const loginUser=async (credentials: Credentials)=>{
   //server call logic
