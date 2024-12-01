@@ -1,9 +1,10 @@
 import { Breadcrumb, Space, Table } from 'antd'
 import {RightOutlined} from '@ant-design/icons'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { getUsers } from '../../http/api'
 import { User } from '../../types'
+import { userAuthStore } from '../../store'
 
 const columns = [
   {
@@ -46,12 +47,19 @@ const columns = [
 ]
 
 const UserPage = () => {
+  
   const {data: users, isLoading, isError, error} = useQuery({
     queryKey: ['users'],
     queryFn:()=>{
       return getUsers().then(response=>response.data)
     }
   })
+
+  const {user} = userAuthStore()
+  if(user?.role !== 'admin'){
+    return <Navigate to='/' replace={true}/>
+  }
+  
   return (
   <>
     <Space size={'large'} direction='vertical' style={{width: '100%'}}>

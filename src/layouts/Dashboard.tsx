@@ -15,38 +15,49 @@ import { logout } from "../http/api"
 
 const {Sider,Header,Content,Footer } = Layout
 
-const items =[
-  {
-    key: '/',
-    icon: <Icon component={Home}/>,
-    label: <NavLink to='/'>Home</NavLink>
-  },
-  {
-    key: '/users',
-    icon: <Icon component={UserIcon}/>,
-    label: <NavLink to='/users'>Users</NavLink>
-  },
-  {
-    key: '/restaurants',
-    icon: <Icon component={foodIcon}/>,
-    label: <NavLink to='/restaurants'>Restaurants</NavLink>
-  },
-  {
-    key: '/products',
-    icon: <Icon component={BasketIcon}/>,
-    label: <NavLink to='/products'>Products</NavLink>
-  },
-  {
-    key: '/promos',
-    icon: <Icon component={GiftIcon}/>,
-    label: <NavLink to='/promos'>Promos</NavLink>
+const getMenuItems = (role: string)=>{
+  const baseItems = [
+    {
+      key: '/',
+      icon: <Icon component={Home}/>,
+      label: <NavLink to='/'>Home</NavLink>
+    },
+    {
+      key: '/restaurants',
+      icon: <Icon component={foodIcon}/>,
+      label: <NavLink to='/restaurants'>Restaurants</NavLink>
+    },
+    {
+      key: '/products',
+      icon: <Icon component={BasketIcon}/>,
+      label: <NavLink to='/products'>Products</NavLink>
+    },
+    {
+      key: '/promos',
+      icon: <Icon component={GiftIcon}/>,
+      label: <NavLink to='/promos'>Promos</NavLink>
+    }
+  ]
+  if(role === 'admin'){
+    const menu =  [...baseItems]
+    menu.splice(1, 0, {
+        key: '/users',
+        icon: <Icon component={UserIcon}/>,
+        label: <NavLink to='/users'>Users</NavLink>
+      },
+    )
+    return menu
   }
-]
+  return baseItems
+}
+
 
 const Dashboard = () => {
     const {user} =userAuthStore()
     const [collapsed, setCollapsed] = useState(false)
     const {logout: logoutFromStore}= userAuthStore()
+    const items =getMenuItems(user?.role as string)
+
 
     const {
       token: { colorBgContainer },
