@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { getUsers } from '../../http/api'
 import { User } from '../../types'
 import { userAuthStore } from '../../store'
+import UsersFilter from './UsersFilter'
 
 const columns = [
   {
@@ -46,7 +47,7 @@ const columns = [
   // }
 ]
 
-const UserPage = () => {
+const Users = () => {
   
   const {data: users, isLoading, isError, error} = useQuery({
     queryKey: ['users'],
@@ -66,10 +67,11 @@ const UserPage = () => {
       <Breadcrumb separator={<RightOutlined />} items={[{ title: <Link to='/'>Dashboard</Link> }, { title: 'Users' }]} />
       {isLoading && <>Loading...</>}
       {isError && <>{error?.message}</>}
+      <UsersFilter/>
       <Table dataSource={users} columns={columns} />
     </Space>
   </>
   )
 }
 
-export default UserPage
+export default Users
