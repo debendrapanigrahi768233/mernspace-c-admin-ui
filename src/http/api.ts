@@ -13,3 +13,6 @@ export const logout = () => api.post("/auth/logout");
 
 //Get users
 export const getUsers = () => api.get("/users");
+
+//Get tenants
+export const getTenants = () => api.get("/tenants");

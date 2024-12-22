@@ -60,7 +60,7 @@ const Dashboard = () => {
 
 
     const {
-      token: { colorBgContainer },
+      token: { colorBgContainer },                         //Do ctrl + Space tp see all predefined options
     } = theme.useToken();
 
     const {mutate: logoutMutate}= useMutation({
