@@ -1,9 +1,9 @@
 import { Breadcrumb, Button, Drawer, Form, Space, Table, theme } from 'antd'
 import {RightOutlined} from '@ant-design/icons'
 import { Link, Navigate } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
-import { getUsers } from '../../http/api'
-import { User } from '../../types'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { createUser, getUsers } from '../../http/api'
+import { CreateUserData, User } from '../../types'
 import { userAuthStore } from '../../store'
 import UsersFilter from './UsersFilter'
 import { useState } from 'react'
@@ -53,6 +53,8 @@ const columns = [
 
 const Users = () => {
 
+  const [form] = Form.useForm()
+  const queryClient = useQueryClient()
   const {
     token: { colorBgLayout },                         //Do ctrl + Space tp see all predefined options
   } = theme.useToken();
@@ -66,7 +68,24 @@ const Users = () => {
     }
   })
 
+  const {mutate: userMutate}= useMutation({
+    mutationKey: ['user'],
+    mutationFn: async(data: CreateUserData)=> createUser(data).then(res=>res.data),
+    onSuccess: ()=>{
+      queryClient.invalidateQueries({queryKey:['users']})
+      return;
+    }
+  })
+
   const {user} = userAuthStore()
+
+  const onHandleSubmit = async ()=>{
+    await form.validateFields()
+    await userMutate(form.getFieldsValue())
+    console.log("Test",form.getFieldsValue())
+    form.resetFields()
+    setDrawerOpen(false)
+  }
   if(user?.role !== 'admin'){
     return <Navigate to='/' replace={true}/>
   }
@@ -95,14 +114,14 @@ const Users = () => {
         }}
         extra={
           <Space>
-            <Button onClick={()=>{}}>Cancel</Button>
-            <Button type="primary" onClick={()=>{}}>
+            <Button onClick={()=>setDrawerOpen(false)}>Cancel</Button>
+            <Button type="primary" onClick={onHandleSubmit}>
               Submit
             </Button>
           </Space>
         }
       >
-        <Form layout='vertical'>
+        <Form layout='vertical' form={form}>
           <UserForm/>
         </Form>
       </Drawer>
