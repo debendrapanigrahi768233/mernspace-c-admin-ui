@@ -1,7 +1,8 @@
-import { Breadcrumb, Button, Drawer, Form, Space, Table, theme } from 'antd'
+import { Breadcrumb, Button, Drawer, Form, Space, Table, theme, Spin, Flex, Typography } from 'antd'
+
 import {RightOutlined} from '@ant-design/icons'
 import { Link, Navigate } from 'react-router-dom'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { createUser, getUsers } from '../../http/api'
 import { CreateUserData, User } from '../../types'
 import { userAuthStore } from '../../store'
@@ -66,13 +67,14 @@ const Users = () => {
     currentPage: 1
   })
   
-  const {data: users, isLoading, isError, error} = useQuery({
+  const {data: users, isFetching, isError, error} = useQuery({
     queryKey: ['users',queryParams],
     queryFn:()=>{
       // const queryString = `currentPage=${queryParams?.currentPage}&perPage=${queryParams?.perPage}`
       const queryString = new URLSearchParams(queryParams as unknown as Record<string,string>).toString()
       return getUsers(queryString).then(response=>response.data)
-    }
+    },
+    placeholderData: keepPreviousData
   })
 
   const {mutate: userMutate}= useMutation({
@@ -100,9 +102,11 @@ const Users = () => {
   return (
   <>
     <Space size={'large'} direction='vertical' style={{width: '100%'}}>
-      <Breadcrumb separator={<RightOutlined />} items={[{ title: <Link to='/'>Dashboard</Link> }, { title: 'Users' }]} />
-      {isLoading && <>Loading...</>}
-      {isError && <>{error?.message}</>}
+      <Flex justify='space-between'>
+        <Breadcrumb separator={<RightOutlined />} items={[{ title: <Link to='/'>Dashboard</Link> }, { title: 'Users' }]} />
+        {isFetching && <><Spin/></>}
+        {isError && <Typography.Text type='danger'>{error?.message}</Typography.Text>}
+      </Flex>
       <UsersFilter onFilterChange={(filterName : string, filterValue : string)=>{
         console.log(filterName, filterValue)
       }}>
