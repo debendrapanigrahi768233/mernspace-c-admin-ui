@@ -9,6 +9,7 @@ import UsersFilter from './UsersFilter'
 import { useState } from 'react'
 import { PlusOutlined } from '@ant-design/icons';
 import UserForm from './forms/UserForm'
+import { PER_PAGE } from '../../constants';
 
 
 const columns = [
@@ -60,11 +61,17 @@ const Users = () => {
   } = theme.useToken();
 
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [queryParams, setQueryParams] = useState({
+    perPage: PER_PAGE,
+    currentPage: 1
+  })
   
   const {data: users, isLoading, isError, error} = useQuery({
-    queryKey: ['users'],
+    queryKey: ['users',queryParams],
     queryFn:()=>{
-      return getUsers().then(response=>response.data)
+      // const queryString = `currentPage=${queryParams?.currentPage}&perPage=${queryParams?.perPage}`
+      const queryString = new URLSearchParams(queryParams as unknown as Record<string,string>).toString()
+      return getUsers(queryString).then(response=>response.data)
     }
   })
 
@@ -101,7 +108,24 @@ const Users = () => {
       }}>
         <Button type="primary" icon={<PlusOutlined />} onClick={()=>setDrawerOpen(true)}>Add User</Button>
       </UsersFilter>
-      <Table dataSource={users} columns={columns} rowKey={(user)=>user.id}/>
+      <Table 
+      dataSource={users?.data} 
+      columns={columns} 
+      rowKey={(user)=>user.id}
+      pagination={{
+        total: users?.total,
+        pageSize: queryParams.perPage,
+        current: queryParams?.currentPage,
+        onChange:(page)=>{
+          setQueryParams((prev)=>{
+            return {
+              ...prev,
+              currentPage: page
+            }
+          })
+        }
+      }}
+      />
 
       <Drawer 
         styles={{body:{background: colorBgLayout} }}

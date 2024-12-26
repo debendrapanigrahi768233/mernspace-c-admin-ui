@@ -99,7 +99,7 @@ const UserForm = () => {
                   <Select size="middle" style={{width: '100%'}} allowClear={true} placeholder="Select restaurant">
                     {
                       tenants?.map((tenant:Tenant)=>(
-                        <Select.Option value={tenant.id}>{tenant.name}</Select.Option>
+                        <Select.Option value={tenant.id} key={tenant.id}>{tenant.name}</Select.Option>
                       ))
                     }
                   </Select>
