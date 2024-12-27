@@ -4,7 +4,7 @@ import {RightOutlined} from '@ant-design/icons'
 import { Link, Navigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { createUser, getUsers } from '../../http/api'
-import { CreateUserData, User } from '../../types'
+import { CreateUserData, FieldData, User } from '../../types'
 import { userAuthStore } from '../../store'
 import UsersFilter from './UsersFilter'
 import { useState } from 'react'
@@ -56,6 +56,7 @@ const columns = [
 const Users = () => {
 
   const [form] = Form.useForm()
+  const [filterForm]= Form.useForm()
   const queryClient = useQueryClient()
   const {
     token: { colorBgLayout },                         //Do ctrl + Space tp see all predefined options
@@ -70,8 +71,9 @@ const Users = () => {
   const {data: users, isFetching, isError, error} = useQuery({
     queryKey: ['users',queryParams],
     queryFn:()=>{
+      const filterParams = Object.fromEntries(Object.entries(queryParams).filter((item)=>!!item[1]))
       // const queryString = `currentPage=${queryParams?.currentPage}&perPage=${queryParams?.perPage}`
-      const queryString = new URLSearchParams(queryParams as unknown as Record<string,string>).toString()
+      const queryString = new URLSearchParams(filterParams as unknown as Record<string,string>).toString()
       return getUsers(queryString).then(response=>response.data)
     },
     placeholderData: keepPreviousData
@@ -95,6 +97,13 @@ const Users = () => {
     form.resetFields()
     setDrawerOpen(false)
   }
+  const onFilterChange=(changedFields : FieldData[])=>{
+    const changedFilterFields = changedFields.map((item)=>({
+        [item.name[0]] : item.value
+    })).reduce((acc, item)=>({...acc,...item}),{})
+    setQueryParams((prev)=> ({...prev, ...changedFilterFields}))
+  }
+
   if(user?.role !== 'admin'){
     return <Navigate to='/' replace={true}/>
   }
@@ -107,11 +116,11 @@ const Users = () => {
         {isFetching && <><Spin/></>}
         {isError && <Typography.Text type='danger'>{error?.message}</Typography.Text>}
       </Flex>
-      <UsersFilter onFilterChange={(filterName : string, filterValue : string)=>{
-        console.log(filterName, filterValue)
-      }}>
-        <Button type="primary" icon={<PlusOutlined />} onClick={()=>setDrawerOpen(true)}>Add User</Button>
-      </UsersFilter>
+      <Form form={filterForm} onFieldsChange={onFilterChange}>
+        <UsersFilter >
+          <Button type="primary" icon={<PlusOutlined />} onClick={()=>setDrawerOpen(true)}>Add User</Button>
+        </UsersFilter>
+      </Form>
       <Table 
       dataSource={users?.data} 
       columns={columns} 
