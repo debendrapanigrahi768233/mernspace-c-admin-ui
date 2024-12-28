@@ -1,4 +1,4 @@
-import { NavLink, Navigate, Outlet } from "react-router-dom"
+import { NavLink, Navigate, Outlet, useLocation } from "react-router-dom"
 import { userAuthStore } from "../store"
 import { Avatar, Badge, Dropdown, Flex, Layout,Menu, Space, theme } from "antd"
 
@@ -53,6 +53,7 @@ const getMenuItems = (role: string)=>{
 
 
 const Dashboard = () => {
+    const location =useLocation()
     const {user} =userAuthStore()
     const [collapsed, setCollapsed] = useState(false)
     const {logout: logoutFromStore}= userAuthStore()
@@ -73,7 +74,7 @@ const Dashboard = () => {
     })
 
     if(user === null){
-        return <Navigate to='/auth/login' replace={true}/>
+        return <Navigate to={`/auth/login?returnTo=${location.pathname}`} replace={true}/>
     }
 
     
