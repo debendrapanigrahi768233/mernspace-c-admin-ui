@@ -152,6 +152,9 @@ const Users = () => {
         total: users?.total,
         pageSize: queryParams.perPage,
         current: queryParams?.currentPage,
+        showTotal:(total: number, range: [number, number])=>{
+          return `Showing ${range[0]}- ${range[1]} of ${total} records`
+        },
         onChange:(page)=>{
           setQueryParams((prev)=>{
             return {
