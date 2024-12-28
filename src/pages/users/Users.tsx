@@ -112,7 +112,7 @@ const Users = () => {
   //It will not call on keystrokes, but as soon we stop typing then it will be called
   const debounceQUpdate = useMemo(()=>{
     return debounce((value: string | undefined)=>{
-      setQueryParams((prev)=> ({...prev, q: value}))
+      setQueryParams((prev)=> ({...prev, q: value, currentPage: 1}))
     },500)
   },[])
 
@@ -123,7 +123,7 @@ const Users = () => {
     if('q' in changedFilterFields){
       debounceQUpdate(changedFilterFields.q)
     }else{
-      setQueryParams((prev)=> ({...prev, ...changedFilterFields}))
+      setQueryParams((prev)=> ({...prev, ...changedFilterFields, currentPage: 1}))
     }
   }
 
