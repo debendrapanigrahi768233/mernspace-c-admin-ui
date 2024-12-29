@@ -21,6 +21,10 @@ export const getTenants = () => api.get("/tenants");
 //Create User
 export const createUser = (user: CreateUserData) => api.post("/users", user);
 
+//Update User
+export const updateUser = (user: CreateUserData, id: string) =>
+  api.patch(`/users/${id}`, user);
+
 //Create tenant
 export const createTenant = (tenant: CreateTenantData) =>
   api.post("/tenants", tenant);

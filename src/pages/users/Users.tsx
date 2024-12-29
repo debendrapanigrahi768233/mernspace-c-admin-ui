@@ -3,11 +3,11 @@ import { Breadcrumb, Button, Drawer, Form, Space, Table, theme, Spin, Flex, Typo
 import {RightOutlined} from '@ant-design/icons'
 import { Link, Navigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
-import { createUser, getUsers } from '../../http/api'
+import { createUser, getUsers, updateUser } from '../../http/api'
 import { CreateUserData, FieldData, User } from '../../types'
 import { userAuthStore } from '../../store'
 import UsersFilter from './UsersFilter'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { PlusOutlined } from '@ant-design/icons';
 import UserForm from './forms/UserForm'
 import { PER_PAGE } from '../../constants';
@@ -49,25 +49,14 @@ const columns = [
         <div>{record.tenant?.name}</div>
       )
     }
-  },
-  // {
-  //   title: 'Action',
-  //   dataIndex : 'action',
-  //   key: 'action',
-  //   render: ()=>{
-  //     return (
-  //       <div>
-  //         <Link to={`/users/edit`}>Edit</Link>
-  //       </div>
-  //     )
-  //   }
-  // }
+  }
 ]
 
 const Users = () => {
 
   const [form] = Form.useForm()
   const [filterForm]= Form.useForm()
+  const [currentEditingUser, setCurrentEditingUser] = useState<User | null>(null)
   const queryClient = useQueryClient()
   const {
     token: { colorBgLayout },                         //Do ctrl + Space tp see all predefined options
@@ -78,6 +67,13 @@ const Users = () => {
     perPage: PER_PAGE,
     currentPage: 1
   })
+
+  useEffect(()=>{
+    if(currentEditingUser){
+      setDrawerOpen(true)
+      form.setFieldsValue({...currentEditingUser,tenantId: currentEditingUser.tenant?.id})
+    }
+  },[currentEditingUser, form])
   
   const {data: users, isFetching, isError, error} = useQuery({
     queryKey: ['users',queryParams],
@@ -99,14 +95,33 @@ const Users = () => {
     }
   })
 
+  const {mutate: updateUserMutation}= useMutation({
+    mutationKey: ['update-user'],
+    mutationFn: async(data: CreateUserData)=> updateUser(data, currentEditingUser!.id).then(res=>res.data),
+    onSuccess: ()=>{
+      queryClient.invalidateQueries({queryKey:['users']})
+      return;
+    }
+  })
+
   const {user} = userAuthStore()
 
   const onHandleSubmit = async ()=>{
+    const isEditMode=  !!currentEditingUser
     await form.validateFields()
-    await userMutate(form.getFieldsValue())
-    console.log("Test",form.getFieldsValue())
-    form.resetFields()
+
+    if(isEditMode){
+      console.log("Updating")
+      await updateUserMutation(form.getFieldsValue())
+    }else{
+      console.log("Creating")
+      console.log("Test",form.getFieldsValue())
+      await userMutate(form.getFieldsValue())
+    }
     setDrawerOpen(false)
+    setCurrentEditingUser(null)
+    form.resetFields()
+    
   }
 
   //It will not call on keystrokes, but as soon we stop typing then it will be called
@@ -141,12 +156,27 @@ const Users = () => {
       </Flex>
       <Form form={filterForm} onFieldsChange={onFilterChange}>
         <UsersFilter >
-          <Button type="primary" icon={<PlusOutlined />} onClick={()=>setDrawerOpen(true)}>Add User</Button>
+          <Button type="primary" icon={<PlusOutlined />} onClick={()=>{
+            form.resetFields()
+            setDrawerOpen(true)}}>
+              Add User</Button>
         </UsersFilter>
       </Form>
       <Table 
       dataSource={users?.data} 
-      columns={columns} 
+      columns={[...columns,{
+        title: 'Action',
+        dataIndex : 'action',
+        key: 'action',
+        render: (_:string, record : User)=>{
+          console.log(record,_)
+          return (
+            <Space>
+              <Button type="link" onClick={()=>setCurrentEditingUser(record)}>Edit</Button>
+            </Space>
+          )
+        }
+      }]} 
       rowKey={(user)=>user.id}
       pagination={{
         total: users?.total,
@@ -168,11 +198,12 @@ const Users = () => {
 
       <Drawer 
         styles={{body:{background: colorBgLayout} }}
-        title="Create User" 
+        title={currentEditingUser? "Edit User":"Create User"} 
         width={720} 
         destroyOnClose={true} 
         open={drawerOpen} 
         onClose={()=>{
+          setCurrentEditingUser(null)
           setDrawerOpen(false)
         }}
         extra={
@@ -185,7 +216,7 @@ const Users = () => {
         }
       >
         <Form layout='vertical' form={form}>
-          <UserForm/>
+          <UserForm isEditMode={!!currentEditingUser}/>
         </Form>
       </Drawer>
     </Space>

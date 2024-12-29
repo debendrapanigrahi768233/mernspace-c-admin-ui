@@ -3,7 +3,7 @@ import { Card, Col, Form, Input, Row, Select, Space } from "antd"
 import { getTenants } from "../../../http/api";
 import { Tenant } from "../../../types";
 
-const UserForm = () => {
+const UserForm = ({isEditMode = false}: {isEditMode : boolean}) => {
   const {
       data: tenants,
   } = useQuery({
@@ -59,7 +59,8 @@ const UserForm = () => {
               </Col>
             </Row>
           </Card>
-          <Card title="Security Info">
+          {
+            !isEditMode && <Card title="Security Info">
             <Row gutter={24}>
               <Col span={12}>
                 <Form.Item label="Password" name="password" rules={[
@@ -73,6 +74,8 @@ const UserForm = () => {
               </Col>
             </Row>
           </Card>
+          }
+          
           <Card title="Auth Info">
             <Row gutter={24}>
               <Col span={12}>
@@ -82,7 +85,7 @@ const UserForm = () => {
                     message: 'Role is required'
                   }
                 ]}>
-                  <Select size="middle" style={{width: '100%'}} allowClear={true} placeholder="Select role">
+                  <Select id="selectBoxInUserForm" size="middle" style={{width: '100%'}} allowClear={true} placeholder="Select role">
                     <Select.Option value="admin">Admin</Select.Option>
                     <Select.Option value="manager">Manager</Select.Option>
                     <Select.Option value="customer">Customer</Select.Option>
@@ -96,7 +99,7 @@ const UserForm = () => {
                     message: 'Restaurant is required'
                   }
                 ]}>
-                  <Select size="middle" style={{width: '100%'}} allowClear={true} placeholder="Select restaurant">
+                  <Select size="middle" style={{width: '100%'}} allowClear={true} placeholder="Select restaurant" >
                     {
                       tenants?.map((tenant:Tenant)=>(
                         <Select.Option value={tenant.id} key={tenant.id}>{tenant.name}</Select.Option>
