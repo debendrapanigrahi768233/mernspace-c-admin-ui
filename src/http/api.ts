@@ -2,7 +2,7 @@ import { CreateTenantData, CreateUserData, Credentials } from "../types";
 import { api } from "./client";
 
 export const AUTH_SERVICE = "/api/auth";
-// export const CATALOG_SERVICE = '/api/catalog'
+export const CATALOG_SERVICE = "/api/catalog";
 
 //Auth service----------------------------->
 export const login = (credentials: Credentials) =>
@@ -19,7 +19,8 @@ export const getUsers = (queryString: string) =>
   api.get(`${AUTH_SERVICE}/users?${queryString}`);
 
 //Get tenants
-export const getTenants = () => api.get(`${AUTH_SERVICE}/tenants`);
+export const getTenants = (queryString: string) =>
+  api.get(`${AUTH_SERVICE}/tenants?${queryString}`);
 
 //Create User
 export const createUser = (user: CreateUserData) =>
@@ -32,3 +33,8 @@ export const updateUser = (user: CreateUserData, id: string) =>
 //Create tenant
 export const createTenant = (tenant: CreateTenantData) =>
   api.post(`${AUTH_SERVICE}/tenants`, tenant);
+
+//-----------------------------------------Catalog service endpoints-----------------------------------
+
+//Get categories
+export const getCategories = () => api.get(`${CATALOG_SERVICE}/categories`);

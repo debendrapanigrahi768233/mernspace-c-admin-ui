@@ -38,3 +38,29 @@ export type FieldData = {
   name: string[];
   value?: string;
 };
+
+export interface PriceConfiguration {
+  [key: string]: {
+    priceType: "base" | "aditional";
+    availableOptions: string[];
+    _id: string;
+  };
+}
+
+export interface Attribute {
+  name: string;
+  widgetType: "switch" | "radio" | string; // Add other widget types if applicable
+  defaultValue: string;
+  availableOptions: string[];
+  _id: string;
+}
+
+export interface Category {
+  _id: string;
+  name: string;
+  priceConfiguration: PriceConfiguration;
+  attributes: Attribute[];
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+  __v: number;
+}
