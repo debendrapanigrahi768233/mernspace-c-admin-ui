@@ -9,16 +9,16 @@ type UsersFilterProp = {
 const UsersFilter = ({children}: UsersFilterProp) => {
   return (
     <Card>
-      <Row justify={"space-between"}>
+      <Row justify={"space-between"} align={"middle"}>
         <Col span={16}>
-          <Row justify={"start"} gutter={20}>
+          <Row justify={"start"} gutter={20} align={"middle"}>
             <Col span={8}>
-              <Form.Item name='q'>
+              <Form.Item name='q' style={{ marginBottom: 0 }}>
                 <Input.Search style={{width: '100%'}} allowClear={true} placeholder="search" />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name='role'>
+              <Form.Item name='role' style={{ marginBottom: 0 }}>
                 <Select style={{width: '100%'}} allowClear={true} placeholder="Select role" >
                   <Select.Option value="admin">Admin</Select.Option>
                   <Select.Option value="manager">Manager</Select.Option>
