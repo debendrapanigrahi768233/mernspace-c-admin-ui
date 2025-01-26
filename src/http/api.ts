@@ -38,3 +38,7 @@ export const createTenant = (tenant: CreateTenantData) =>
 
 //Get categories
 export const getCategories = () => api.get(`${CATALOG_SERVICE}/categories`);
+
+//Get products
+export const getProducts = (queryString: string) =>
+  api.get(`${CATALOG_SERVICE}/products?${queryString}`);

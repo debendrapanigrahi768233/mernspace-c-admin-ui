@@ -28,7 +28,7 @@ const columns = [
       return(
         <div>{record.firstName} {record.lastName}</div>
       )
-      }
+    }
   },
   {
     title: 'Email',

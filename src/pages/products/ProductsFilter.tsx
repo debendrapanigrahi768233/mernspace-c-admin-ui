@@ -39,7 +39,7 @@ const ProductsFilter = ({children}: ProductsFilterProp) => {
               </Form.Item>
             </Col>
             <Col span={6}>
-              <Form.Item name='category' style={{ marginBottom: 0 }}>
+              <Form.Item name='categoryId' style={{ marginBottom: 0 }}>
                 <Select style={{width: '100%'}} allowClear={true} placeholder="Select Category" >
                     {
                         categories && categories?.map((category : Category)=>{
@@ -50,7 +50,7 @@ const ProductsFilter = ({children}: ProductsFilterProp) => {
               </Form.Item>
             </Col>
             <Col span={6}>
-              <Form.Item name='restaurant' style={{ marginBottom: 0 }}>
+              <Form.Item name='tenantId' style={{ marginBottom: 0 }}>
                 <Select style={{width: '100%'}} allowClear={true} placeholder="Select Restaurant" >
                     {
                         restaurants && restaurants?.map((restaurant : Tenant)=>{
@@ -62,7 +62,9 @@ const ProductsFilter = ({children}: ProductsFilterProp) => {
             </Col>
             <Col span={6}>
                 <Space>
-                    <Switch defaultChecked onChange={()=>{}}/>
+                    <Form.Item name='isPublish' style={{ marginBottom: 0 }}>
+                        <Switch defaultChecked={false} onChange={()=>{}}/>
+                    </Form.Item>
                     <Typography.Text>Show only publish</Typography.Text>
                 </Space>
             </Col>

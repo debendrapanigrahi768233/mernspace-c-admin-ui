@@ -64,3 +64,19 @@ export interface Category {
   updatedAt: string; // ISO date string
   __v: number;
 }
+
+export interface ProductAttribute {
+  name: string;
+  value: string | boolean | number; // Can store boolean, string, or number depending on the attribute type
+  _id: string;
+}
+
+export interface Product {
+  _id: string;
+  name: string;
+  description: string;
+  category: Category;
+  isPublish: boolean;
+  createdAt: string;
+  image?: string;
+}
