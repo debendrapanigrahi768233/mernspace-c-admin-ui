@@ -3,6 +3,7 @@ import { Card, Col, Form, Input, Row, Select, Space, Switch, Typography } from '
 import React from 'react'
 import { getCategories, getTenants } from '../../http/api'
 import { Category, Tenant } from '../../types'
+import { userAuthStore } from '../../store'
 
 type ProductsFilterProp = {
     children : React.ReactNode,
@@ -10,6 +11,7 @@ type ProductsFilterProp = {
   }
 
 const ProductsFilter = ({children}: ProductsFilterProp) => {
+    const {user} = userAuthStore()
 
     const {data: restaurants} = useQuery({
         queryKey: ['restaurants'],
@@ -49,17 +51,22 @@ const ProductsFilter = ({children}: ProductsFilterProp) => {
                 </Select>
               </Form.Item>
             </Col>
-            <Col span={6}>
-              <Form.Item name='tenantId' style={{ marginBottom: 0 }}>
-                <Select style={{width: '100%'}} allowClear={true} placeholder="Select Restaurant" >
-                    {
-                        restaurants && restaurants?.map((restaurant : Tenant)=>{
-                            return <Select.Option key={restaurant?.id} value={restaurant?.id}>{restaurant?.name}</Select.Option>
-                        })
-                    }
-                </Select>
-              </Form.Item>
-            </Col>
+            {
+                user?.role == 'admin' && (
+                    <Col span={6}>
+                        <Form.Item name='tenantId' style={{ marginBottom: 0 }}>
+                            <Select style={{width: '100%'}} allowClear={true} placeholder="Select Restaurant" >
+                                {
+                                    restaurants && restaurants?.map((restaurant : Tenant)=>{
+                                        return <Select.Option key={restaurant?.id} value={restaurant?.id}>{restaurant?.name}</Select.Option>
+                                    })
+                                }
+                            </Select>
+                        </Form.Item>
+                    </Col>
+                )
+            }
+            
             <Col span={6}>
                 <Space>
                     <Form.Item name='isPublish' style={{ marginBottom: 0 }}>
