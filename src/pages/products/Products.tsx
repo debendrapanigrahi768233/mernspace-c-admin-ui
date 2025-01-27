@@ -1,4 +1,4 @@
-import { Breadcrumb, Button, Flex, Form, Image, Space, Spin, Table, Tag, Typography } from 'antd'
+import { Breadcrumb, Button, Drawer, Flex, Form, Image, Space, Spin, Table, Tag, Typography, theme } from 'antd'
 import React, { useMemo, useState } from 'react'
 import { RightOutlined, PlusOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
@@ -10,6 +10,7 @@ import { getProducts } from '../../http/api';
 import { format } from 'date-fns';
 import { debounce } from 'lodash';
 import { userAuthStore } from '../../store';
+import ProductForm from './forms/ProductForm';
 
 const columns = [
     {
@@ -55,6 +56,7 @@ const columns = [
   ]
 
 const Products = () => {
+    const [form] = Form.useForm()
     const [filterForm]= Form.useForm()
     const {user} = userAuthStore()
     const [queryParams, setQueryParams] = useState({
@@ -62,6 +64,11 @@ const Products = () => {
         page: 1,
         tenantId : user?.role === 'manager'? user?.tenant?.id : undefined
     })
+    const {
+        token: { colorBgLayout },                         //Do ctrl + Space tp see all predefined options
+      } = theme.useToken();
+    const [drawerOpen, setDrawerOpen] = useState(false)
+
 
     const {data: products, isFetching, isError, error} = useQuery({
         queryKey: ['products',queryParams],
@@ -92,6 +99,10 @@ const Products = () => {
         }
     }
 
+    const onHandleSubmit=()=>{
+
+    }
+
   return (
     <Space size={'large'} direction='vertical' style={{width: '100%'}}>
       <Flex justify='space-between'>
@@ -101,7 +112,7 @@ const Products = () => {
       </Flex>
       <Form form={filterForm} onFieldsChange={onFilterChange}>
         <ProductsFilter>
-          <Button type="primary" icon={<PlusOutlined />} onClick={()=>{}}>
+          <Button type="primary" icon={<PlusOutlined />} onClick={()=>{setDrawerOpen(true)}}>
               Add Product</Button>
         </ProductsFilter>
       </Form>
@@ -138,6 +149,29 @@ const Products = () => {
             }
         }}
       />
+      <Drawer 
+        styles={{body:{background: colorBgLayout} }}
+        title={'Add Product'} 
+        width={720} 
+        destroyOnClose={true} 
+        open={drawerOpen} 
+        onClose={()=>{
+        //   setCurrentEditingUser(null)
+          setDrawerOpen(false)
+        }}
+        extra={
+          <Space>
+            <Button onClick={()=>setDrawerOpen(false)}>Cancel</Button>
+            <Button type="primary" onClick={onHandleSubmit}>
+              Submit
+            </Button>
+          </Space>
+        }
+      >
+        <Form layout='vertical' form={form}>
+          <ProductForm/>
+        </Form>
+      </Drawer>
     </Space>
   )
 }
