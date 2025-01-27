@@ -1,4 +1,4 @@
-import { Card, Col, Form, Input, Row, Select, Space, Switch, Typography} from 'antd'
+import { Card, Col, Form, FormInstance, Input, Row, Select, Space, Switch, Typography} from 'antd'
 import { Category, Tenant } from '../../../types'
 import { useQuery } from '@tanstack/react-query'
 import { getCategories, getTenants } from '../../../http/api'
@@ -7,7 +7,7 @@ import Attributes from './Attributes'
 import ProductImage from './ProductImage'
 import { userAuthStore } from '../../../store'
 
-const ProductForm = () => {
+const ProductForm = ({form}:{form : FormInstance}) => {
     const {user} =userAuthStore()
     const selectedCategory = Form.useWatch('categoryId')
     console.log({selectedCategory})
@@ -54,7 +54,7 @@ const ProductForm = () => {
                   <Select id="selectBoxInUserForm" size="middle" style={{width: '100%'}} allowClear={true} placeholder="Select category">
                   {categories?.length ? (
                       categories.map((category: Category) => (
-                        <Select.Option value={JSON.stringify(category)} key={category._id}>
+                        <Select.Option value={category._id} key={category._id}>
                           {category.name}
                         </Select.Option>
                       ))
@@ -83,7 +83,7 @@ const ProductForm = () => {
           <Card title="Product Image">
             <Row gutter={24}>
               <Col span={12}>
-                <ProductImage/>
+                <ProductImage initialImage={form.getFieldValue('image')}/>
               </Col>
             </Row>
           </Card>
@@ -99,7 +99,7 @@ const ProductForm = () => {
                       <Select size="middle" style={{width: '100%'}} allowClear={true} placeholder="Select restaurant" >
                         {
                           tenants?.map((tenant:Tenant)=>(
-                            <Select.Option value={tenant.id} key={tenant.id}>{tenant.name}</Select.Option>
+                            <Select.Option value={String(tenant.id)} key={tenant.id}>{tenant.name}</Select.Option>
                           ))
                         }
                       </Select>

@@ -60,13 +60,13 @@ export interface Category {
   attributes: Attribute[];
 }
 
-export interface ProductAttribute {
+export type ProductAttribute = {
   name: string;
   value: string | boolean | number; // Can store boolean, string, or number depending on the attribute type
   _id: string;
-}
+};
 
-export interface Product {
+export type Product = {
   _id: string;
   name: string;
   description: string;
@@ -74,6 +74,9 @@ export interface Product {
   isPublish: boolean;
   createdAt: string;
   image?: string;
-}
+  priceConfiguration: PriceConfiguration;
+  attributes: ProductAttribute[];
+};
 
 export type ImageField = { file: File };
+export type CreateProductData = Product & { image: ImageField };

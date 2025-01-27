@@ -1,6 +1,6 @@
-import { ImageField, Product } from "../../types";
+import { CreateProductData, ImageField } from "../../types";
 
-export const makeFormData = (data: Product) => {
+export const makeFormData = (data: CreateProductData) => {
   const formData = new FormData();
 
   Object.entries(data).forEach(([key, value]) => {

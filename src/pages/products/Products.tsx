@@ -1,12 +1,12 @@
 import { Breadcrumb, Button, Drawer, Flex, Form, Image, Space, Spin, Table, Tag, Typography, theme } from 'antd'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { RightOutlined, PlusOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import ProductsFilter from './ProductsFilter';
 import { FieldData, Product } from '../../types';
 import { PER_PAGE } from '../../constants';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createProduct, getProducts } from '../../http/api';
+import { createProduct, getProducts, updateProduct } from '../../http/api';
 import { format } from 'date-fns';
 import { debounce } from 'lodash';
 import { userAuthStore } from '../../store';
@@ -60,6 +60,40 @@ const Products = () => {
     const [form] = Form.useForm()
     const [filterForm]= Form.useForm()
     const {user} = userAuthStore()
+    const [drawerOpen, setDrawerOpen] = useState(false)
+    const [currentProduct, setCurrentProduct]= useState<Product | null>(null)
+
+    useEffect(()=>{
+        if(currentProduct){
+            setDrawerOpen(true)
+            const priceConfiguration = Object.entries(currentProduct.priceConfiguration).reduce((acc,[key,value])=>{
+                const stringifiedKey = JSON.stringify({
+                    configurationKey : key,
+                    priceType: value.priceType
+                })
+                return {
+                    ...acc,
+                    [stringifiedKey]: value.availableOptions
+                }
+            },{})
+            
+            const attributes= currentProduct.attributes.reduce((acc,item)=>{
+                return {
+                    ...acc,
+                    [item.name]: item.value
+                }
+            },{})
+            console.log({currentProductPriceConfig: currentProduct['priceConfiguration'],priceConfiguration,currentProductAttribute: currentProduct['attributes'],attributes})
+            form.setFieldsValue({
+                ...currentProduct,
+                priceConfiguration,
+                attributes,
+                categoryId: currentProduct.category._id
+            })
+        }
+    }, [currentProduct,form])
+
+
     const [queryParams, setQueryParams] = useState({
         limit: PER_PAGE,
         page: 1,
@@ -68,7 +102,6 @@ const Products = () => {
     const {
         token: { colorBgLayout },                         //Do ctrl + Space tp see all predefined options
       } = theme.useToken();
-    const [drawerOpen, setDrawerOpen] = useState(false)
 
 
     const {data: products, isFetching, isError, error} = useQuery({
@@ -85,7 +118,13 @@ const Products = () => {
       const { mutate: productMutate, isPending: isCreateLoading } = useMutation({
         mutationKey: ['product'],
         mutationFn: async (data: FormData) => {
+            if(currentProduct){
+                //edit mode
+                return updateProduct(data,currentProduct._id).then((res) => res.data);
+            }else{
+                //create mode
                 return createProduct(data).then((res) => res.data);
+            }
         },
         onSuccess: async () => {
             queryClient.invalidateQueries({ queryKey: ['products'] });
@@ -144,7 +183,7 @@ const Products = () => {
                 },
             };
         }, {});        
-        const categoryId = JSON.parse(form.getFieldValue('categoryId'))._id
+        const categoryId =form.getFieldValue('categoryId')
         // const currentAttrs = {
         //     isHit: 'No',
         //     Spiciness: 'Less',
@@ -187,7 +226,8 @@ const Products = () => {
       <Form form={filterForm} onFieldsChange={onFilterChange}>
         <ProductsFilter>
           <Button type="primary" icon={<PlusOutlined />} onClick={()=>{setDrawerOpen(true)}}>
-              Add Product</Button>
+              Add Product
+              </Button>
         </ProductsFilter>
       </Form>
       <Table 
@@ -200,7 +240,7 @@ const Products = () => {
                 console.log(record,_)
                 return (
                     <Space>
-                        <Button type="link" onClick={()=>{}}>Edit</Button>
+                        <Button type="link" onClick={()=>{setCurrentProduct(record)}}>Edit</Button>
                     </Space>
                 )
             }
@@ -225,17 +265,23 @@ const Products = () => {
       />
       <Drawer 
         styles={{body:{background: colorBgLayout} }}
-        title={'Add Product'} 
+        title={currentProduct? 'Edit Product': 'Add Product'} 
         width={720} 
         destroyOnClose={true} 
         open={drawerOpen} 
         onClose={()=>{
         //   setCurrentEditingUser(null)
+          form.resetFields()
+          setCurrentProduct(null)
           setDrawerOpen(false)
         }}
         extra={
           <Space>
-            <Button onClick={()=>setDrawerOpen(false)}>Cancel</Button>
+            <Button onClick={()=>{
+                form.resetFields();
+                setDrawerOpen(false);
+                setCurrentProduct(null)
+            }}>Cancel</Button>
             <Button type="primary" onClick={onHandleSubmit} loading={isCreateLoading}>
               Submit
             </Button>
@@ -243,7 +289,7 @@ const Products = () => {
         }
       >
         <Form layout='vertical' form={form}>
-          <ProductForm/>
+          <ProductForm form={form}/>
         </Form>
       </Drawer>
     </Space>

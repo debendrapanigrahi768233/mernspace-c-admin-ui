@@ -2,9 +2,10 @@ import { Form, message, Space, Typography, Upload, UploadProps } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 
-const ProductImage = () => {
+const ProductImage = ({initialImage}: {initialImage : string}) => {
     const [messageApi, contextHolder] = message.useMessage();
-    const [imageUrl, setImageUrl] = useState<string | null>(null);
+    const [imageUrl, setImageUrl] = useState<string | null>(initialImage);
+    console.log({initialImage})
 
     const uploaderConfig: UploadProps = {
         name: 'file',
@@ -17,6 +18,7 @@ const ProductImage = () => {
                 console.error('You can only upload JPG/PNG file!');
                 messageApi.error('You can only upload JPG/PNG file!');
             }
+            console.log({file})
 
             //todo:  size validation.
             setImageUrl(URL.createObjectURL(file));

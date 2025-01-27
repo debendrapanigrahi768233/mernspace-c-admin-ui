@@ -1,13 +1,22 @@
 import { Card, Form, Radio, Switch, Typography } from 'antd'
 import React from 'react'
 import { Attribute, Category } from '../../../types';
+import { getCategory } from '../../../http/api';
+import { useQuery } from '@tanstack/react-query';
 
 type PricingProps={
     selectedCategory : string
 }
 
 const Attributes = ({selectedCategory}:PricingProps) => {
-    const category: Category | null = selectedCategory? JSON.parse(selectedCategory) : null
+    // const category: Category | null = selectedCategory? JSON.parse(selectedCategory) : null
+    const { data: category } = useQuery<Category>({
+        queryKey: ['category', selectedCategory],
+        queryFn: () => {
+            return getCategory(selectedCategory).then((res) => res.data);
+        },
+        staleTime: 1000 * 60 * 5, // 5 minutes
+    });
 
   return (
     <Card title={<Typography.Text>Product price</Typography.Text>} bordered={false}>
