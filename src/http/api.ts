@@ -42,3 +42,9 @@ export const getCategories = () => api.get(`${CATALOG_SERVICE}/categories`);
 //Get products
 export const getProducts = (queryString: string) =>
   api.get(`${CATALOG_SERVICE}/products?${queryString}`);
+
+//Create tenant
+export const createProduct = (product: FormData) =>
+  api.post(`${CATALOG_SERVICE}/products`, product, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });

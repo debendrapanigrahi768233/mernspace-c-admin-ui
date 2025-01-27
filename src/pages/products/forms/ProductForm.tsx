@@ -1,11 +1,10 @@
-import { Card, Col, Form, Input, Row, Select, Space, Switch, Typography, Upload } from 'antd'
-import React from 'react'
+import { Card, Col, Form, Input, Row, Select, Space, Switch, Typography} from 'antd'
 import { Category, Tenant } from '../../../types'
 import { useQuery } from '@tanstack/react-query'
 import { getCategories, getTenants } from '../../../http/api'
-import { PlusOutlined } from '@ant-design/icons';
 import Pricing from './Pricing'
 import Attributes from './Attributes'
+import ProductImage from './ProductImage'
 
 const ProductForm = () => {
     const selectedCategory = Form.useWatch('categoryId')
@@ -82,18 +81,7 @@ const ProductForm = () => {
           <Card title="Product Image">
             <Row gutter={24}>
               <Col span={12}>
-                <Form.Item label="Product Image" name="image"  rules={[
-                  {
-                    required: true,
-                    message: 'Image is required'
-                  }
-                ]}>
-                  <Upload listType="picture-card">
-                       <div>
-                         <PlusOutlined/>
-                       </div>
-                    </Upload>
-                </Form.Item>
+                <ProductImage/>
               </Col>
             </Row>
           </Card>

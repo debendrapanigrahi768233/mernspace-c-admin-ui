@@ -75,3 +75,5 @@ export interface Product {
   createdAt: string;
   image?: string;
 }
+
+export type ImageField = { file: File };
